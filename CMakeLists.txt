@@ -281,6 +281,8 @@ target_sources(${EXECUTABLE_NAME} PUBLIC
     "src/sfall_opcodes.h"
     "src/sfall_arrays.cc"
     "src/sfall_arrays.h"
+    "src/sfall_starting_gift.cc"
+    "src/sfall_starting_gift.h"
     "src/touch.cc"
     "src/touch.h"
 )

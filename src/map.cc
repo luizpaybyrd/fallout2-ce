@@ -36,6 +36,7 @@
 #include "random.h"
 #include "scripts.h"
 #include "settings.h"
+#include "sfall_starting_gift.h"
 #include "svga.h"
 #include "text_object.h"
 #include "tile.h"
@@ -1009,6 +1010,7 @@ err:
 
     scriptsExecMapEnterProc();
     scriptsExecMapUpdateProc();
+    sfallStartingGiftCheck();
     tileEnable();
 
     if (gMapTransition.map > 0) {
