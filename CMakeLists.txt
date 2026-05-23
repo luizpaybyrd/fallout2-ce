@@ -283,6 +283,8 @@ target_sources(${EXECUTABLE_NAME} PUBLIC
     "src/sfall_arrays.h"
     "src/sfall_starting_gift.cc"
     "src/sfall_starting_gift.h"
+    "src/quirks.cc"
+    "src/quirks.h"
     "src/touch.cc"
     "src/touch.h"
 )

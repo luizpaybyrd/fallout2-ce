@@ -33,6 +33,7 @@
 #include "platform_compat.h"
 #include "proto.h"
 #include "queue.h"
+#include "quirks.h"
 #include "random.h"
 #include "scripts.h"
 #include "settings.h"
@@ -2566,6 +2567,7 @@ static void _combat_begin(Object* attacker)
     animationStop();
     tickersRemove(_dude_fidget);
     _combat_elev = gElevation;
+    quirksResetCombatState();
 
     if (!isInCombat()) {
         _combatNumTurns = 0;
@@ -3850,7 +3852,9 @@ static int attackCompute(Attack* attack)
         roll = _compute_spray(attack, accuracy, &ammoQuantity, &v26, anim);
     } else {
         int chance = critterGetStat(attack->attacker, STAT_CRITICAL_CHANCE);
-        roll = randomRoll(accuracy, chance - hit_location_penalty[attack->defenderHitLocation], nullptr);
+        int locPenalty = quirksGetHitLocationPenalty(attack->defenderHitLocation,
+            hit_location_penalty[attack->defenderHitLocation]);
+        roll = randomRoll(accuracy, chance - locPenalty, nullptr);
     }
 
     if (roll == ROLL_FAILURE) {
@@ -4434,10 +4438,14 @@ static int attackDetermineToHit(Object* attacker, int tile, Object* defender, in
         toHit -= armorClass;
     }
 
-    if (isRangedWeapon) {
-        toHit += hit_location_penalty[hitLocation];
-    } else {
-        toHit += hit_location_penalty[hitLocation] / 2;
+    {
+        // Quirk: Headhunter rebalances hit-location penalties.
+        int locPenalty = quirksGetHitLocationPenalty(hitLocation, hit_location_penalty[hitLocation]);
+        if (isRangedWeapon) {
+            toHit += locPenalty;
+        } else {
+            toHit += locPenalty / 2;
+        }
     }
 
     if (defender != nullptr && (defender->flags & OBJECT_MULTIHEX) != 0) {
@@ -4484,6 +4492,11 @@ static int attackDetermineToHit(Object* attacker, int tile, Object* defender, in
             toHit += 20;
             break;
         }
+    }
+
+    // Quirk: Gunslinger — applied last so the 95% clamp still bounds us.
+    if (attacker == gDude) {
+        toHit += quirksGetToHitBonus(hitMode);
     }
 
     if (toHit > 95) {
@@ -4627,6 +4640,12 @@ static void attackComputeDamage(Attack* attack, int ammoQuantity, int bonusDamag
             if (weaponGetDamageType(attack->attacker, attack->weapon) == DAMAGE_TYPE_FIRE) {
                 *damagePtr += 5;
             }
+        }
+
+        // Quirks: Sociopath/Berserker/Glass Cannon scale outgoing damage.
+        double quirkScale = quirksGetDamageScale(attack->hitMode);
+        if (quirkScale != 1.0) {
+            *damagePtr = static_cast<int>(*damagePtr * quirkScale);
         }
     }
 
@@ -5479,6 +5498,11 @@ static int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hi
 
     if (critter == nullptr) {
         return 0;
+    }
+
+    // Quirk: Berserker disables called shots entirely.
+    if (quirksDisablesCalledShots()) {
+        return -1;
     }
 
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {

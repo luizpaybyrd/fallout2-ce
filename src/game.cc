@@ -47,6 +47,7 @@
 #include "preferences.h"
 #include "proto.h"
 #include "queue.h"
+#include "quirks.h"
 #include "random.h"
 #include "scripts.h"
 #include "settings.h"
@@ -131,6 +132,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     // Sfall config should be initialized before game config, since it can
     // override it's file name.
     sfallConfigInit(argc, argv);
+    quirksInit();
 
     settingsInit(isMapper, argc, argv);
 

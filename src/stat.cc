@@ -19,6 +19,7 @@
 #include "perk.h"
 #include "platform_compat.h"
 #include "proto.h"
+#include "quirks.h"
 #include "random.h"
 #include "scripts.h"
 #include "skill.h"
@@ -384,6 +385,10 @@ int critterGetStat(Object* critter, int stat)
         }
     }
 
+    if (critter == gDude) {
+        value += quirksGetStatBonus(stat, value);
+    }
+
     return value;
 }
 
@@ -730,6 +735,10 @@ int pcAddExperience(int xp, int* xpGained)
 // 0x4AFAB8
 int pcAddExperienceWithOptions(int xp, bool a2, int* xpGained)
 {
+    // Quirk: Quick Learner scales incoming XP. Applied to the raw delta before
+    // Swift Learner's percentage bonus so it stacks multiplicatively.
+    xp = static_cast<int>(xp * quirksGetXpScale());
+
     int oldXp = gPcStatValues[PC_STAT_EXPERIENCE];
 
     int newXp = gPcStatValues[PC_STAT_EXPERIENCE];

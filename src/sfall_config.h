@@ -26,6 +26,7 @@ namespace fallout {
 #define SFALL_CONFIG_SKIP_OPENING_MOVIES_KEY "SkipOpeningMovies"
 #define SFALL_CONFIG_STARTING_MAP_KEY "StartingMap"
 #define SFALL_CONFIG_STARTING_GIFT_KEY "StartingGift"
+#define SFALL_CONFIG_QUIRKS_KEY "Quirks"
 #define SFALL_CONFIG_KARMA_FRMS_KEY "KarmaFRMs"
 #define SFALL_CONFIG_KARMA_POINTS_KEY "KarmaPoints"
 #define SFALL_CONFIG_DISPLAY_KARMA_CHANGES_KEY "DisplayKarmaChanges"
