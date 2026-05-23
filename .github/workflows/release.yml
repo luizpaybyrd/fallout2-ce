@@ -243,7 +243,7 @@ jobs:
   windows:
     name: Windows (${{ matrix.arch }})
 
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
@@ -262,13 +262,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build
-          key: windows-${{ matrix.arch }}-cmake-v1
+          key: windows-${{ matrix.arch }}-cmake-v2
 
       - name: Configure
         run: |
           cmake \
             -B build \
-            -G "Visual Studio 16 2019" \
+            -G "Visual Studio 17 2022" \
             -A ${{ matrix.generator-platform }} \
             # EOL
 

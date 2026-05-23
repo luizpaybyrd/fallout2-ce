@@ -271,18 +271,19 @@ jobs:
           retention-days: 7
 
   windows:
-    name: Windows (${{ matrix.arch }})
+    name: Windows (${{ matrix.arch }} ${{ matrix.config }})
 
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: x86
-            generator-platform: Win32
-          - arch: x64
-            generator-platform: x64
+        arch:
+          - x86
+          - x64
+        config:
+          - debug
+          - release
 
     steps:
       - name: Clone
@@ -292,7 +293,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out
-          key: windows-${{ matrix.arch }}-cmake-v2
+          key: windows-${{ matrix.arch }}-${{ matrix.config }}-cmake-v2
 
       - name: Configure
         run: |
@@ -300,11 +301,11 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build --preset windows-${{ matrix.arch }}-debug
+          cmake --build --preset windows-${{ matrix.arch }}-${{ matrix.config }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: fallout2-ce-windows-${{ matrix.arch }}
-          path:  out/build/windows-${{ matrix.arch }}/Debug/fallout2-ce.exe
+          name: fallout2-ce-windows-${{ matrix.arch }}-${{ matrix.config }}
+          path:  out/build/windows-${{ matrix.arch }}/${{ matrix.config == 'release' && 'Release' || 'Debug' }}/fallout2-ce.exe
           retention-days: 7
